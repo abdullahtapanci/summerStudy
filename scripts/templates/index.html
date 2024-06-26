@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyApp</title>
+
+    <style>
+        /* Optional: Add some basic styling for readability */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .data-item {
+            margin-bottom: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Bitcoin</h1>
+    <button id="getDataButton">Get Datas</button>
+    <p id="id" class="data-item">id</p>
+    <p id="name" class="data-item">name</p>
+    <p id="symbol" class="data-item" >symbol</p>
+    <p id="price" class="data-item" >price</p>
+    <p id="circulatingSupply" class="data-item" >circulatingSupply</p>
+    <p id="marketCap" class="data-item" >marketCap</p>
+    <p id="24hVolume" class="data-item" >24hVolume</p>
+    <p id="24hPercentChange" class="data-item" >24hPercentChange</p>
+    <p id="lastUpdated" class="data-item" >lastUpdated</p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script>
+
+        const socket = io({autoConnect:false});
+
+        document.getElementById("getDataButton").addEventListener("click",function(){
+            socket.connect();
+            socket.emit("connection",function(){
+                console.log("connection to server!")
+            })
+        }) 
+        
+
+        socket.on('data', function(bitcoinData) {
+            console.log(bitcoinData["data"])
+            document.getElementById('id').textContent = "ID : " + bitcoinData["data"]["id"];
+            document.getElementById('name').textContent = "Name : " + bitcoinData["data"]["name"];
+            document.getElementById('symbol').textContent = "Symbol : " + bitcoinData["data"]["symbol"];
+            document.getElementById('price').textContent = "Price : " + bitcoinData["data"]["quote"]["USD"]["price"] + " USD";
+            document.getElementById('circulatingSupply').textContent = "Circulating Supply : " + bitcoinData["data"]["circulating_supply"];
+            document.getElementById('marketCap').textContent = "Market Cap : " + bitcoinData["data"]["quote"]["USD"]["market_cap"];
+            document.getElementById('24hVolume').textContent = "24h Volume : " + bitcoinData["data"]["quote"]["USD"]["volume_24h"];
+            document.getElementById('24hPercentChange').textContent = "Percent Change 24h : " + bitcoinData["data"]["quote"]["USD"]["percent_change_24h"];
+            
+            var lastUpdated = new Date(bitcoinData["data"]["last_updated"]);
+            var options = { timeZone: 'Europe/Moscow', timeZoneName: 'short' };
+            var formattedDate = lastUpdated.toLocaleString('en-US', options);
+
+            document.getElementById('lastUpdated').textContent = "Last Updated : " + formattedDate;
+        });
+
+    </script>
+</body>
+</html>
+
